@@ -1,0 +1,1 @@
+print("Slava Ukraini!")
