@@ -1,7 +1,7 @@
 # Problem Set 2, hangman.py
 # Name: Savchuk Ivan
-# Collaborators:
-# Time spent: 4 hours
+# Collaborators: None
+# Time spent: ~5 hours
 
 # Hangman Game
 
@@ -25,7 +25,7 @@ def load_words():
     line = inFile.readline()
     # wordlist: list of strings
     wordlist = line.split()
-    print("  ", len(wordlist), "words loaded.")
+    print(len(wordlist), "words loaded.")
     return wordlist
 
 def choose_word(wordlist):
