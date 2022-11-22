@@ -70,8 +70,9 @@ def get_guessed_word(secret_word, letters_guessed):
       if i in letters_guessed:
         output += i
       else:
-        output += '_'
-    return output
+        output += ' _ '
+    output = output.replace('  ', ' ')  #remove double spaces from repeating " _ "
+    return output.strip()
 
 def get_available_letters(letters_guessed):
     '''
@@ -203,6 +204,7 @@ def show_possible_matches(my_word):
   #function or in match_with_gaps(). Combining guessed_word and guessed_letters into a single object
   #would work too. Or you can always say it's a feature to make the game harder.
 
+  my_word = my_word.replace(' ', '')
   matching_words = []
   for i in wordlist:
     if match_with_gaps(my_word, i):
