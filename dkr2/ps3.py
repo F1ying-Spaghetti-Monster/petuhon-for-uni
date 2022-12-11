@@ -3,9 +3,9 @@
 # The 6.0001 Word Game
 # Created by: Kevin Luu <luuk> and Jenna Wiens <jwiens>
 #
-# Name          : <your name>
-# Collaborators : <your collaborators>
-# Time spent    : <total time>
+# Name          : Savchuk Ivan
+# Collaborators : None
+# Time spent    : 1 hour
 
 import math
 import random
@@ -192,9 +192,7 @@ def is_valid_word(word, hand, word_list):
     word_list: list of lowercase strings
     returns: boolean
     """
-    word_letters = {}
-    for i in word.lower():
-        word_letters[i] = word_letters.get(i, 0) + 1
+    word_letters = get_frequency_dict(word.lower())
     for key in word_letters.keys():
         if word_letters[key] > hand.get(key, 0):
             return False
@@ -210,11 +208,9 @@ def calculate_handlen(hand):
     hand: dictionary (string-> int)
     returns: integer
     """
-    
-    pass  # TO DO... Remove this line when you implement this function
+    return sum(hand.values())
 
 def play_hand(hand, word_list):
-
     """
     Allows the user to play the given hand, as follows:
 
