@@ -14,7 +14,8 @@ import itertools
 
 VOWELS = 'aeiou'
 CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
-HAND_SIZE = 7
+HAND_SIZE = 8
+NUM_WILDCARDS = 2   #shouldn't be more than third of HAND_SIZE
 
 SCRABBLE_LETTER_VALUES = {
     'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10
@@ -123,17 +124,24 @@ def deal_hand(n):
     n: int >= 0
     returns: dictionary (string -> int)
     """
-    
+    global NUM_WILDCARDS
     hand={}
-    num_vowels = int(math.ceil(n / 3))
-
-    for i in range(num_vowels):
+    num_vowels = int(math.ceil(n / 3)) - NUM_WILDCARDS
+    if num_vowels < 0:
+        num_vowels += NUM_WILDCARDS
+        NUM_WILDCARDS = 0
+        print('Invalid number of wildcards, please adjust setings.',
+                'For this run number of wildcards changed to 0')
+    
+    for _ in range(num_vowels):
         x = random.choice(VOWELS)
         hand[x] = hand.get(x, 0) + 1
     
-    for i in range(num_vowels, n):    
+    for _ in range(num_vowels + NUM_WILDCARDS, n):    
         x = random.choice(CONSONANTS)
         hand[x] = hand.get(x, 0) + 1
+    
+    hand['*'] = NUM_WILDCARDS
     
     return hand
 
@@ -181,9 +189,9 @@ def is_valid_word(word:str, hand, word_list):
         if word_letters[key] > hand.get(key, 0):
             return False
     for i in itertools.permutations(VOWELS, word.count('*')):   #acounts for multiple wildcards
-        possible_word = ''
+        possible_word = word
         for j in i:
-            possible_word = word.replace('*', j, 1)
+            possible_word = possible_word.replace('*', j, 1)
         if possible_word in word_list:
             return True
     return word.lower() in word_list
@@ -342,7 +350,7 @@ def play_game(word_list):
                 if user_input == 'yes':
                     while True:
                         letter = input('Which letter would you like to replace: ')
-                        if letter.lower() in string.ascii_lowercase:
+                        if letter.lower() in string.ascii_lowercase:    #wildcards can't be replaced
                             break
                         print("That's not a letter, please try again")
                     current_hand = substitute_hand(current_hand, letter)
