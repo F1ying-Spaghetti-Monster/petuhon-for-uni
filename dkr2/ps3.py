@@ -5,7 +5,7 @@
 #
 # Name          : Savchuk Ivan
 # Collaborators : None
-# Time spent    : 1 hour
+# Time spent    : ~5 hours
 
 import math
 import random
@@ -19,10 +19,6 @@ HAND_SIZE = 7
 SCRABBLE_LETTER_VALUES = {
     'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10
 }
-
-# -----------------------------------
-# Helper code
-# (you don't need to understand this helper code)
 
 WORDLIST_FILENAME = "words.txt"
 
@@ -61,12 +57,6 @@ def get_frequency_dict(sequence):
     return freq
 	
 
-# (end of helper code)
-# -----------------------------------
-
-#
-# Problem #1: Scoring a word
-#
 def get_word_score(word:str, n):
     """
     Returns the score for a word. Assumes the word is a
@@ -100,9 +90,7 @@ def get_word_score(word:str, n):
             score += SCRABBLE_LETTER_VALUES[i]
     return score * max(7 * len(word) - 3 * (n - len(word)), 1)
 
-#
-# Make sure you understand how this function works and what it does!
-#
+
 def display_hand(hand):
     """
     Displays the letters currently in the hand.
@@ -121,10 +109,7 @@ def display_hand(hand):
              print(letter, end=' ')      # print all on the same line
     print()                              # print an empty line
 
-#
-# Make sure you understand how this function works and what it does!
-# You will need to modify this for Problem #4.
-#
+
 def deal_hand(n):
     """
     Returns a random hand containing n lowercase letters.
@@ -152,9 +137,7 @@ def deal_hand(n):
     
     return hand
 
-#
-# Problem #2: Update a hand by removing letters
-#
+
 def update_hand(hand, word):
     """
     Does NOT assume that hand contains every letter in word at least as
@@ -180,9 +163,7 @@ def update_hand(hand, word):
     new_hand = {key: value for key, value in new_hand.items() if value > 0}
     return new_hand
 
-#
-# Problem #3: Test word validity
-#
+
 def is_valid_word(word:str, hand, word_list):
     """
     Returns True if word is in the word_list and is entirely
@@ -199,7 +180,7 @@ def is_valid_word(word:str, hand, word_list):
     for key in word_letters.keys():
         if word_letters[key] > hand.get(key, 0):
             return False
-    for i in itertools.permutations(VOWELS, word.count('*')):
+    for i in itertools.permutations(VOWELS, word.count('*')):   #acounts for multiple wildcards
         possible_word = ''
         for j in i:
             possible_word = word.replace('*', j, 1)
@@ -207,9 +188,7 @@ def is_valid_word(word:str, hand, word_list):
             return True
     return word.lower() in word_list
 
-#
-# Problem #5: Playing a hand
-#
+
 def calculate_handlen(hand):
     """ 
     Returns the length (number of letters) in the current hand.
@@ -218,6 +197,7 @@ def calculate_handlen(hand):
     returns: integer
     """
     return sum(hand.values())
+
 
 def play_hand(hand, word_list):
     """
@@ -257,24 +237,19 @@ def play_hand(hand, word_list):
         user_input = input('Enter word, or "!!" to indicate that you are finished: ')
         if user_input == '!!':
             break
-        if is_valid_word(user_input):
-            word_score = get_word_score(user_input)
+        if is_valid_word(user_input, hand, word_list):
+            word_score = get_word_score(user_input, calculate_handlen(hand))
             total_score += word_score
             print(f'"{user_input}" earned {word_score} points. Total: {total_score} points')
         else:
             print('That is not a valid word. Please choose another word.')
         hand = update_hand(hand, user_input)
-    print('Total score:', total_score)
+        print()
+    else:
+        print('Ran out of letters')
+    print('Total score for this hand:', total_score)
+    print('-'*10)
     return total_score
-
-#
-# Problem #6: Playing a game
-# 
-
-
-#
-# procedure you will use to substitute a letter in a hand
-#
 
 def substitute_hand(hand:dict, letter):
     """ 
@@ -344,16 +319,55 @@ def play_game(word_list):
 
     word_list: list of lowercase strings
     """
-    
-    print("play_game not implemented.") # TO DO... Remove this line when you implement this function
-    
+    while True:
+        try:
+            hands_left = int(input('Enter total number of hands: '))
+            if hands_left <= 0:
+                print('Number must be >=1, please try again!')
+                continue
+            break
+        except ValueError:  #verifying appropriate hands count
+            print("Sorry, couldn't convert to a number, try again!")
+            continue
+    substitutions_left = 1
+    replays_left = 1
+    total_score = 0
+    while hands_left > 0:
+        current_hand = deal_hand(HAND_SIZE)
+        if substitutions_left:
+            print('Current hand: ', end='')
+            display_hand(current_hand)
+            while True:
+                user_input = input('Would you like to substitute a letter? ').lower()   #acepts only yes/no answers
+                if user_input == 'yes':
+                    while True:
+                        letter = input('Which letter would you like to replace: ')
+                        if letter.lower() in string.ascii_lowercase:
+                            break
+                        print("That's not a letter, please try again")
+                    current_hand = substitute_hand(current_hand, letter)
+                    substitutions_left -= 1
+                    break
+                if user_input == 'no':
+                    break
+                print("I didn't get that, please answer yes or no.")
+            print()
+        hand_score = play_hand(current_hand, word_list)
+        if replays_left:
+            while True:
+                user_input = input('Would you like to replay the hand? ').lower()    #acepts only yes/no answers
+                if user_input == 'yes':
+                    replays_left -= 1
+                    hand_score = max(play_hand(current_hand, word_list), hand_score)
+                    break
+                if user_input == 'no':
+                    break
+                print("I didn't get that, please answer yes or no.")
+        total_score += hand_score
+        hands_left -= 1
+    print('Total score over all hands:', total_score)
 
 
-#
-# Build data structures used for entire session and play game
-# Do not remove the "if __name__ == '__main__':" line - this code is executed
-# when the program is run directly, instead of through an import statement
-#
 if __name__ == '__main__':
     word_list = load_words()
     play_game(word_list)
