@@ -248,7 +248,7 @@ def play_hand(hand, word_list):
       returns: the total score for the hand
       
     """
-    
+
     total_score = 0
     user_input = ''
     while calculate_handlen(hand):
@@ -276,7 +276,7 @@ def play_hand(hand, word_list):
 # procedure you will use to substitute a letter in a hand
 #
 
-def substitute_hand(hand, letter):
+def substitute_hand(hand:dict, letter):
     """ 
     Allow the user to replace all copies of one letter in the hand (chosen by user)
     with a new letter chosen from the VOWELS and CONSONANTS at random. The new letter
@@ -298,9 +298,21 @@ def substitute_hand(hand, letter):
     letter: string
     returns: dictionary (string -> int)
     """
+    if letter not in hand:
+        return hand
+    new_hand = hand.copy()
+    replacements = string.ascii_lowercase
+    for i in hand.keys():
+        replacements = replacements.replace(i, '')
+    try:
+        i = random.choice(replacements)
+    except IndexError:  #if hand has all possible letters, there's nothing to replace with
+        print('Nothing to replace with')
+        return hand
+    new_hand[i] = hand[letter]
+    del new_hand[letter]
+    return new_hand
     
-    pass  # TO DO... Remove this line when you implement this function
-       
     
 def play_game(word_list):
     """
